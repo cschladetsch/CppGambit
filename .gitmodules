@@ -1,24 +1,27 @@
 [submodule "ThirdParty/SDL"]
-        path = ThirdParty/SDL
-        url = https://github.com/cschladetsch/SDL.git
+	path = ThirdParty/SDL
+	url = https://github.com/cschladetsch/SDL.git
 [submodule "ThirdParty/json"]
-        path = ThirdParty/json
-        url = https://github.com/cschladetsch/json.git
+	path = ThirdParty/json
+	url = https://github.com/cschladetsch/json.git
 [submodule "ThirdParty/crossguid"]
-        path = ThirdParty/crossguid
-        url = https://github.com/cschladetsch/crossguid.git
+	path = ThirdParty/crossguid
+	url = https://github.com/cschladetsch/crossguid.git
 [submodule "ThirdParty/nameof"]
-        path = ThirdParty/nameof
-        url = https://github.com/Neargye/nameof.git
+	path = ThirdParty/nameof
+	url = https://github.com/Neargye/nameof.git
 [submodule "ThirdParty/SDL_ttf"]
-        path = ThirdParty/SDL_ttf
-        url = https://github.com/cschladetsch/SDL_ttf.git
+	path = ThirdParty/SDL_ttf
+	url = https://github.com/cschladetsch/SDL_ttf.git
 [submodule "ThirdParty/harfbuzz"]
-        path = ThirdParty/harfbuzz
-        url = https://github.com/cschladetsch/harfbuzz.git
+	path = ThirdParty/harfbuzz
+	url = https://github.com/cschladetsch/harfbuzz.git
 [submodule "ThirdParty/freetype2"]
-        path = ThirdParty/freetype2
-        url = https://github.com/aseprite/freetype2.git
+	path = ThirdParty/freetype2
+	url = https://github.com/aseprite/freetype2.git
 [submodule "ThirdParty/CppEvents"]
-        path = ThirdParty/CppEvents
-        url = https://github.com/cschladetsch/CppEvents.git
+	path = ThirdParty/CppEvents
+	url = https://github.com/cschladetsch/CppEvents.git
+[submodule "ThirdParty/CppEvents"]
+	path = ThirdParty/CppEvents
+	url = https://github.com/cschladetsch/CppEvents.git
