@@ -69,7 +69,7 @@ namespace Gambit
                     return false;
                 }
                 stream >> json;
-                for (auto &item : json.items())
+                for (auto item : json.items())
                 {
                     if (!ParseJson(item))
                     {

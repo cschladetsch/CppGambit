@@ -1,5 +1,6 @@
 #include <fstream>
 #include <ctime>
+#include <iomanip>
 
 #include "Gambit/Logger.hpp"
 
