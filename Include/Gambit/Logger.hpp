@@ -20,6 +20,7 @@ namespace Gambit
 
         static bool _triedOpenLogFile;
         static string _logFileName;
+        static string _appName;
         static shared_ptr<teestream> _tee;
         static shared_ptr<std::fstream> _logFile;
         static int _verbosityLevel;
@@ -27,6 +28,7 @@ namespace Gambit
     public:
         Logger(const char* source, ELogLevel logLevel = ELogLevel::Verbose);
         static void CloseFile();
+        static void SetAppName(const string& name);
 
         static void SetVerbosity(int level) { _verbosityLevel = level; }
         void Tee(std::ostream &other);

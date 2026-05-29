@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
 build_dir="build"
 build_tests="ON"
 run_tests="OFF"
@@ -8,11 +7,9 @@ configure_only="OFF"
 parallel="24"
 targets=()
 build_args=()
-
 usage() {
     cat <<'EOF'
 Usage: ./b [options] [-- extra cmake --build args]
-
 Options:
   --tests              Build tests and run ctest after the build
   --run-tests          Build tests and run ctest after the build
@@ -24,7 +21,6 @@ Options:
   -h, --help           Show this help
 EOF
 }
-
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --tests|--run-tests)
@@ -68,18 +64,12 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
-
 if [[ ! -f "$build_dir/CMakeCache.txt" ]]; then
     cmake -S . -B "$build_dir" -DBUILD_TESTS="$build_tests"
-else
-    cmake -S . -B "$build_dir" -DBUILD_TESTS="$build_tests" --fresh 2>/dev/null || \
-    cmake -S . -B "$build_dir" -DBUILD_TESTS="$build_tests"
 fi
-
 if [[ "$configure_only" == "ON" ]]; then
     exit 0
 fi
-
 cmd=(cmake --build "$build_dir")
 for target in "${targets[@]}"; do
     cmd+=(--target "$target")
@@ -89,7 +79,6 @@ if [[ -n "$parallel" ]]; then
 fi
 cmd+=("${build_args[@]}")
 "${cmd[@]}"
-
 if [[ "$run_tests" == "ON" ]]; then
     ctest --test-dir "$build_dir" --output-on-failure
 fi

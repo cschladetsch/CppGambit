@@ -7,7 +7,6 @@
 #include "Gambit/Atlas.hpp"
 
 #ifdef WIN32
-    // use scoped enums. Can't do this for SDL
     #pragma warning (disable:26812)
 #endif
 
@@ -62,7 +61,7 @@ namespace Gambit
         if (!first)
             return SpriteNotFound(object.Sprite);
         Rect const& dest = second;
-        return WriteRect(renderer, second, 
+        return WriteRect(renderer, second,
             Rect(topLeft.x, topLeft.y, dest.width, dest.height), object);
     }
 
@@ -123,25 +122,21 @@ namespace Gambit
 
     bool Atlas::SpriteNotFound(const string& name) const
     {
-        if (_spritesNotFound.find(name) != _spritesNotFound.end())
+        if (_spritesNotFound.find(name) == _spritesNotFound.end())
         {
-            LOG_ERROR() << "No sprite named '" << name << "' found\n.";
+            LOG_ERROR() << "No sprite named '" << name << "' found.\n";
             _spritesNotFound.insert(name);
-            return false;
         }
-
         return false;
     }
 
     bool Atlas::TintNotFound(const string& name) const
     {
-        if (_tintsNotFound.find(name) != _tintsNotFound.end())
+        if (_tintsNotFound.find(name) == _tintsNotFound.end())
         {
-            LOG_ERROR() << "No tint named '" << name << "' found\n.";
+            LOG_ERROR() << "No tint named '" << name << "' found.\n";
             _tintsNotFound.insert(name);
-            return false;
         }
-
         return false;
     }
 
@@ -183,23 +178,15 @@ namespace Gambit
 
         if (type == "tint_list")
         {
-            auto const tintNames = 
-            { 
-                "active_player", "inactive_player", "low_time_inactive", "low_time_active",
-                "button_pressed", "time_bar_green", "time_bar_red", "white" 
-            }; 
-
-            for (auto const &tint : tintNames)
+            for (auto& [key, val] : value.items())
             {
-                _tints[tint] = ReadColor(value, tint);
+                if (key == "type") continue;
+                _tints[key] = ReadColor(value, key.c_str());
             }
-
             return true;
         }
 
         LOG_ERROR() << "Unknown atlas type '" << type << "'\n";
-
         return false;
     }
 }
-

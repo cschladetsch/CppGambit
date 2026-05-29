@@ -14,6 +14,7 @@ namespace Gambit
     shared_ptr<fstream> Logger::_logFile;
     shared_ptr<teestream> Logger::_tee;
     string Logger::_logFileName;
+    string Logger::_appName = "Gambit";
     bool Logger::_triedOpenLogFile;
     int Logger::_verbosityLevel;
 
@@ -25,6 +26,11 @@ namespace Gambit
 
         _source = source;
         OpenLogFile();
+    }
+
+    void Logger::SetAppName(const string& name)
+    {
+        _appName = name;
     }
 
     void Logger::CloseFile()
@@ -40,7 +46,7 @@ namespace Gambit
     {
         if (_logFile && _logFile->is_open())
             return true;
- 
+
         if (_triedOpenLogFile)
             return false;
 
@@ -49,15 +55,12 @@ namespace Gambit
         auto t = time(nullptr);
         auto tm = *localtime(&t);
         stringstream stream;
-        stream << put_time(&tm, "ChessClock-%m-%d-%H-%M.txt") << ends;
+        stream << _appName << "-";
+        stream << put_time(&tm, "%m-%d-%H-%M.txt") << ends;
         _logFileName = stream.str();
         try
         {
             _logFile = make_shared<fstream>(_logFileName, fstream::out);
-            if (_logFile->good())
-            {
-                //_tee = make_shared<teestream>(*_logFile, cout);
-            }
             return true;
         }
         catch (exception &e)
@@ -107,19 +110,12 @@ namespace Gambit
 
     ostream& Logger::PrintLead(const char* file, int line, const char *func, rang::fg const &color, const char *level) const
     {
-        auto lead = "";
         string fileName = file;
         if (const auto fileNameLength = fileName.size(); fileNameLength > 33)
         {
             fileName = "..." + fileName.substr(fileNameLength - 30);
         }
         ostream &stream = _tee ? *_tee : cout;
-        //auto millis = SDL_GetTicks()/1000.0f;
-        //stream << style::reset << fg::reset << style::italic << fg::yellow << millis;
-        //stream << "ms: " << fg::reset << fg::gray << style::dim << fileName << "(" << line << "): ";
-        //stream << fg::cyan << func << fg::gray << ": " << style::bold << "\n";
-        //stream << "\t[" << color << level << fg::gray << "]: {" << fg::magenta << _source << fg::gray << "}:\n" << fg::blue;
-        //stream << "\t" << ends;
 
         stream << style::reset << fg::reset;
         stream << "[" << color << level << fg::gray << "]: " << fg::magenta << _source << fg::gray << ": ";
@@ -129,4 +125,3 @@ namespace Gambit
         return stream;
     }
 }
-

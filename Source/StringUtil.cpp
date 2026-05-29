@@ -1,25 +1,22 @@
-#include <codecvt>
-#include <locale>
 #include <string>
+#include <vector>
+#include <cstdlib>
 
 namespace Gambit
 {
-#ifdef WIN32
-    #pragma warning (disable:4996)
-#endif
-
-    std::string NarrowString(const std::string &str)
+    std::string NarrowString(const std::string& str)
     {
         return str;
     }
 
-    std::string NarrowString(const std::wstring &str)
+    std::string NarrowString(const std::wstring& str)
     {
-        std::wstring_convert<
-            std::codecvt_utf8_utf16< std::wstring::value_type >,
-            std::wstring::value_type
-        > utf16conv;
-        return utf16conv.to_bytes(str);
+        if (str.empty())
+            return {};
+
+        const std::size_t len = str.size() * 4 + 1;
+        std::vector<char> buf(len, '\0');
+        std::wcstombs(buf.data(), str.c_str(), len);
+        return std::string(buf.data());
     }
 }
-
