@@ -114,3 +114,68 @@ Replace `static shared_ptr<std::fstream>` with `static std::fstream`.
 5. `Renderer.hpp` constexpr dimensions
 6. Dead code deletion
 7. Minor fixes
+
+---
+
+## Raspberry Pi 3 Target
+
+### Hardware Facts
+- ARMv8-A CPU (4x Cortex-A53 @ 1.2GHz), 1GB RAM
+- VideoCore IV GPU -- no Vulkan, limited OpenGL ES 2.0
+- 7" DSI display at 800x480 (matches `Renderer::Width`/`Height`)
+- Raspberry Pi OS (32-bit recommended for compatibility)
+
+### SDL2 Build Flags for Pi
+The SDL2 vendored build needs these CMake options set for Pi targets:
+
+```cmake
+set(VIDEO_RPI ON CACHE BOOL "" FORCE)      # VideoCore IV direct display
+set(VIDEO_OPENGL OFF CACHE BOOL "" FORCE)  # No desktop GL on Pi 3
+set(VIDEO_VULKAN OFF CACHE BOOL "" FORCE)  # No Vulkan on Pi 3
+set(VIDEO_X11 OFF CACHE BOOL "" FORCE)     # Skip if running framebuffer direct
+set(ALSA ON CACHE BOOL "" FORCE)           # Audio via ALSA on Pi
+```
+
+Wrap in a CMake platform guard:
+```cmake
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm|aarch64")
+    # Pi-specific SDL2 options here
+endif()
+```
+
+### Renderer
+`SDL_RENDERER_ACCELERATED` silently falls back to software if VideoCore IV
+driver is not active. Add a fallback check in `Renderer::Construct()`:
+
+```cpp
+_renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+if (!_renderer)
+{
+    LOG_WARN() << "Accelerated renderer unavailable, falling back to software\n";
+    _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_SOFTWARE);
+}
+```
+
+### Compiler Flags
+For native Pi builds add to CMakeLists.txt:
+```cmake
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm|aarch64")
+    target_compile_options(Gambit PRIVATE -march=native -mfpu=neon-fp-armv8 -mfloat-abi=hard)
+endif()
+```
+
+### Build Strategy
+- **Development**: build on WSL2/Linux x86_64, validate logic and tests
+- **Pi validation**: native build on device -- slow but avoids cross-compile toolchain pain
+- **Cross-compilation**: optional later -- requires `arm-linux-gnueabihf` sysroot
+
+### Memory Budget (Pi 3, 1GB)
+Static link of SDL2 + SDL_ttf + SDL_image + freetype produces a large binary.
+Estimate ~40-60MB RSS at runtime. Acceptable for 1GB but worth profiling on device.
+
+### Display Setup
+With the official 7" DSI display, ensure `/boot/config.txt` has:
+```
+dtoverlay=vc4-kms-v3d
+```
+for KMSDRM backend, or use the legacy framebuffer driver with `SDL_VIDEODRIVER=fbdev`.
