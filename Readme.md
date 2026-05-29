@@ -1,4 +1,4 @@
-# !(Hat)[Resources/Hat.jpg]Gambit
+# Gambit ![Hat](./Resources/Hat.jpg)
 
 *Gambit* is a general-purpose interactive application framework built on SDL2, targeting Linux and Raspberry Pi. Extracted from [ChessClock](https://github.com/cschladetsch/ChessClock).
 
