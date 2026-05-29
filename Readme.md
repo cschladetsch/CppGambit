@@ -32,22 +32,22 @@ $ sudo apt autoremove
 
 ## Building
 
-A script is provided:
+A build script is provided:
 
 ```bash
-$ ./run
+$ ./b --run-tests
 ```
 
-In detail, see Raspberry Pi above and then:
+If you want to drive CMake manually:
 
 ```bash
-$ git submodule update --init --recursive
-$ mkdir -p build && cd build && build .. && make && cd ../bin && ./GambitTest
+$ cmake -S . -B build
+$ cmake --build build -j 24
+$ ./Bin/GambitTest
 ```
 
 ## Testing
 
 ```
-$ ./boot tests
+$ ./b --run-tests
 ```
-
