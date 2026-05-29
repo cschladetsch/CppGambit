@@ -1,5 +1,132 @@
 # CppGambit Cleanup Plan
 
+## Architecture Overview
+
+### Class Hierarchy
+
+Gambit is layered into three tiers: core types, resources, and application framework.
+
+```mermaid
+classDiagram
+    class ResourceBase {
+        +GetGuid() Guid
+        +GetName() string
+        +GetResourceId() ResourceId
+    }
+    class Resource~T~ {
+        +Get() T&
+        +Exists() bool
+    }
+    class Texture {
+        +GetBounds() Rect
+        +SetBlended()
+        +SetAlpha(uint8_t)
+    }
+    class Font {
+        +CreateText() TexturePtr
+        +LoadFont() FontPtr
+    }
+    class Atlas {
+        +GetSprite() pair~bool,Rect~
+        +WriteSprite()
+        +GetTint()
+    }
+    class Scene {
+        +Render(Renderer&)
+        +AddObject(ObjectPtr)
+        +OnPressed() ObjectPtr
+    }
+    class Object {
+        +Name string
+        +Position Vector2
+        +Sprite string
+        +Layer int
+    }
+    class TimerFont {
+        +DrawTime()
+        +DrawSeconds()
+        +MakeTextures()
+    }
+    class AudioClip {
+        +Play()
+        +Stop()
+        +SetVolume()
+    }
+
+    ResourceBase <|-- Resource~T~
+    Resource~T~ <|-- Texture
+    Resource~T~ <|-- Font
+    ResourceBase <|-- Atlas
+    ResourceBase <|-- Scene
+    ResourceBase <|-- Object
+    ResourceBase <|-- TimerFont
+    ResourceBase <|-- AudioClip
+    Atlas --> Texture
+    Scene --> Atlas
+    Scene --> Object
+    TimerFont --> Font
+    TimerFont --> Texture
+```
+
+### Resource Loading Pipeline
+
+Resources are loaded through a uniform template pipeline. The `ResourceManager` owns all
+resources by `ResourceId` (GUID + name). `ResourceLoader<T>` delegates to `T::Load()`,
+which is a static factory method on each resource class.
+
+```mermaid
+flowchart TD
+    App["Application code"] --> RM["ResourceManager::LoadResource&lt;T&gt;()"]
+    RM --> RL["ResourceLoader&lt;T&gt;::Load()"]
+    RL --> TL["T::Load() static factory"]
+    TL --> F["File system\n(rootFolder / name)"]
+    F --> SDL["SDL / SDL_ttf / SDL_image"]
+    SDL --> Res["shared_ptr&lt;T&gt;"]
+    Res --> Store["IdToResources map\n(ResourceId → ResourceBasePtr)"]
+    Store --> Caller["Returns shared_ptr&lt;T&gt; to caller"]
+
+    style App fill:#e8f4f8
+    style Store fill:#f0f4e8
+    style SDL fill:#f4ece8
+```
+
+### Render Loop Flow
+
+Each frame: clear, render scene layers in order, present. The `Context<Values>` template
+owns both the `Renderer` and `ResourceManager` and drives the loop.
+
+```mermaid
+sequenceDiagram
+    participant App as Application
+    participant Ctx as Context&lt;Values&gt;
+    participant SDL as SDL_Event
+    participant Ren as Renderer
+    participant Scn as Scene
+    participant Atl as Atlas
+
+    App->>Ctx: Run()
+    loop Each frame
+        Ctx->>SDL: SDL_PollEvent()
+        SDL-->>Ctx: Event (quit / input)
+        Ctx->>Ctx: Execute(EventProcessors)
+        Ctx->>Ren: Clear()
+        Ctx->>Scn: Render(renderer)
+        loop Each layer
+            Scn->>Scn: Iterate objects
+            alt Has TextTexturePtr
+                Scn->>Ren: WriteTexture(textTexture, position)
+            else Has Sprite
+                Scn->>Atl: WriteSprite(renderer, position, object)
+                Atl->>Ren: WriteTexture(atlasTexture, src, dest)
+            end
+        end
+        Ctx->>Ren: Present()
+    end
+    App-->>App: Return exit code
+```
+
+---
+
 ## Priority 1 -- Correctness
 
 ### `Rect.hpp` -- `ToSdlRect` reinterpret_cast
