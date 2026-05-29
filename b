@@ -69,7 +69,12 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-cmake -S . -B "$build_dir" -DBUILD_TESTS="$build_tests"
+if [[ ! -f "$build_dir/CMakeCache.txt" ]]; then
+    cmake -S . -B "$build_dir" -DBUILD_TESTS="$build_tests"
+else
+    cmake -S . -B "$build_dir" -DBUILD_TESTS="$build_tests" --fresh 2>/dev/null || \
+    cmake -S . -B "$build_dir" -DBUILD_TESTS="$build_tests"
+fi
 
 if [[ "$configure_only" == "ON" ]]; then
     exit 0

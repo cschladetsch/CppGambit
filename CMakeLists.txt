@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
 
 set(PROJECT_NAME Gambit)
 project(${PROJECT_NAME})
@@ -29,9 +30,9 @@ set(WAYLAND_SHARED OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(SKIP_INSTALL_ALL ON CACHE BOOL "" FORCE)
 option(BUILD_TESTS "Build tests in the Test directory" ON)
+add_subdirectory(ThirdParty/SDL)
 
 add_subdirectory(ThirdParty/crossguid)
-add_subdirectory(ThirdParty/SDL)
 if (TARGET SDL2-static AND CMAKE_C_COMPILER_ID STREQUAL "GNU")
     target_compile_options(SDL2-static PRIVATE -Wno-maybe-uninitialized)
 endif()
@@ -80,7 +81,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 if (BUILD_TESTS)
     enable_testing()
-    add_subdirectory(Test)
+    add_subdirectory(Test ${CMAKE_BINARY_DIR}/Tests)
 endif()
 
 target_link_libraries(${PROJECT_NAME} SDL2::SDL2-static SDL2_ttf SDL2_image nlohmann_json crossguid)
