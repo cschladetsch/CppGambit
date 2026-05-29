@@ -11,7 +11,7 @@ Gambit is organised into three layers: core types, a resource system, and an app
 ```mermaid
 graph TD
     subgraph Application
-        CTX["Context&lt;Values&gt;\nMain loop, event processing"]
+        CTX["Context\nMain loop, event processing"]
     end
 
     subgraph Framework
