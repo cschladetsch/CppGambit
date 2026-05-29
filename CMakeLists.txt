@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.12)
 set(PROJECT_NAME Gambit)
 project(${PROJECT_NAME})
 
+include(GNUInstallDirs)
+
 set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/Include)
 set(RUNTIME_OUTPUT_DIR "${PROJECT_SOURCE_DIR}/Bin")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${RUNTIME_OUTPUT_DIR}")
@@ -37,7 +39,18 @@ add_subdirectory(ThirdParty/freetype2)
 if (NOT TARGET Freetype::Freetype)
     add_library(Freetype::Freetype ALIAS freetype-interface)
 endif()
+# SDL_ttf exports its link interface, so the real Freetype targets behind the
+# alias must be present in the same export set.
+install(
+    TARGETS freetype freetype-interface
+    EXPORT SDL2_ttfTargets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+set(SDL2_DIR "${CMAKE_BINARY_DIR}/ThirdParty/SDL" CACHE PATH "" FORCE)
 add_subdirectory(ThirdParty/SDL_ttf)
+target_compile_definitions(SDL2_ttf PRIVATE FT_PIXEL_MODE_GRAY16=FT_PIXEL_MODE_GRAY4)
 target_include_directories(SDL2_ttf PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/ThirdParty/SDL_ttf>"
 )
