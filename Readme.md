@@ -1,53 +1,45 @@
-# Gambit ![Gambit](../External/gambit-icon.png)
+# Gambit
 
-*Gambit* is a general-purpose interactive system based on SDL2. It works on everything.
+*Gambit* is a general-purpose interactive application framework built on SDL2, targeting Linux and Raspberry Pi. Extracted from [ChessClock](https://github.com/cschladetsch/ChessClock).
+
+Features a sprite atlas system, JSON-driven resource loading, scene graph, font rendering via SDL_ttf, and audio support. All third-party dependencies are vendored and built statically -- no system SDL required.
 
 ## Requirements
 
-* CMake
-* make, or msbuild
-* C++11 compiler
-
-### Windows 10
-
-For building from Windows 10 to pi, nice to haves are:
-
-* [VncViewer](https://www.realvnc.com/en/connect/download/viewer/) if working with external devices such as a Pi
-* [GitBash](https://github.com/git-for-windows/git/releases/download/v2.31.1.windows.1/Git-2.31.1-64-bit.exe) Because the scripts are bash and you should use bash because everyone has since 1979.
-* [Doxygen](https://doxygen.nl/files/doxygen-1.9.1-setup.exe) If you want some documentation.
-* [Cmake](https://cmake.org/download/) To write the files that are used to make the system.
-* [Make](https://ixpeering.dl.sourceforge.net/project/ezwinports/make-4.3-without-guile-w32-bin.zip) To make the binaries described by CMake. Can also use `msbuild` on Windows.
-
-### Raspberry Pi
-
-Either run `./run` or do it manually:
-
-```bash
-$ sudo apt update
-$ sudo apt install make cmake git git-lfs
-$ sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev
-$ sudo apt upgrade
-$ sudo apt autoremove
-```
+- CMake 3.12+
+- GCC 13+ or Clang
+- C++17
 
 ## Building
 
-A build script is provided:
+```bash
+./b --run-tests
+```
+
+Or manually:
 
 ```bash
-$ ./b --run-tests
+cmake -S . -B build
+cmake --build build -j$(nproc)
+ctest --test-dir build --output-on-failure
 ```
 
-If you want to drive CMake manually:
+## Raspberry Pi
 
 ```bash
-$ cmake -S . -B build
-$ cmake --build build -j 24
-$ ./Bin/GambitTest
+sudo apt update
+sudo apt install make cmake git git-lfs
+sudo apt upgrade && sudo apt autoremove
 ```
 
-## Testing
+No additional SDL packages needed -- everything builds from vendored source in `ThirdParty/`.
 
-```
-$ ./b --run-tests
-```
+## Structure
+
+| Directory | Purpose |
+|-----------|---------|
+| `Include/` | Public headers |
+| `Source/` | Implementation |
+| `Test/` | Catch-based unit tests |
+| `ThirdParty/` | Vendored dependencies (SDL2, SDL_ttf, SDL_image, freetype, nlohmann/json, crossguid) |
+| `CMake/` | CMake modules and shims |
